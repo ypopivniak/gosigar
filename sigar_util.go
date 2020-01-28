@@ -3,6 +3,7 @@
 package gosigar
 
 import (
+	"bytes"
 	"unsafe"
 )
 
@@ -19,4 +20,12 @@ func bytePtrToString(ptr *int8) string {
 
 func chop(buf []byte) []byte {
 	return buf[0 : len(buf)-1]
+}
+
+func convertBytesToString(arr []byte) string {
+	n := bytes.IndexByte(arr, 0)
+	if n == -1 {
+		return string(arr[:])
+	}
+	return string(arr[:n])
 }
