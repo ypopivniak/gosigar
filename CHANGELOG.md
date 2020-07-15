@@ -9,6 +9,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - Fixed the `ss` example by replacing the Logrus package with the stdlib `log` package. https://github.com/elastic/gosigar/issues/123 https://github.com/elastic/gosigar/pull/136
+- Replaced `bytePtrToString` and cleaned up darwin code. https://github.com/elastic/gosigar/issues/138
 
 ### Changed
 
