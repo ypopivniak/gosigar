@@ -47,7 +47,7 @@ func init() {
 // some pads will be explicitly missing.
 type utmp struct {
 	User          [256]uint8
-	Id            [14]uint8
+	ID            [14]uint8
 	Line          [64]uint8
 	XPad1         int16
 	Pid           int32
@@ -57,7 +57,7 @@ type utmp struct {
 	Termination   int16
 	Exit          int16
 	Host          [256]uint8
-	Xdbl_word_pad int32
+	XdblWordPad int32
 	XreservedA    [2]int32
 	XreservedV    [6]int32
 }
@@ -93,7 +93,7 @@ func tick2msec(val uint64) uint64 {
 	return val * 1000 / system.ticks
 }
 
-// Return the list of file systems
+// Get returns the list of file systems
 func (self *FileSystemList) Get() error {
 	var size C.int
 	_, err := C.mntctl(C.MCTL_QUERY, C.sizeof_int, (*C.char)(unsafe.Pointer(&size)))
@@ -187,7 +187,7 @@ func (self *FileSystemList) Get() error {
 	return nil
 }
 
-// Return the CPU load average
+// Get returns the CPU load average
 func (self *LoadAverage) Get() error {
 	cpudata := C.perfstat_cpu_total_t{}
 
@@ -208,7 +208,7 @@ func (self *LoadAverage) Get() error {
 	return nil
 }
 
-// Return the system uptime
+// Get returns the system uptime
 func (self *Uptime) Get() error {
 	btime, err := bootTime()
 	if err != nil {
@@ -219,7 +219,7 @@ func (self *Uptime) Get() error {
 	return nil
 }
 
-// Return the current system memory
+// Get returns the current system memory
 func (self *Mem) Get() error {
 	meminfo := C.perfstat_memory_total_t{}
 	_, err := C.perfstat_memory_total(nil, &meminfo, C.sizeof_perfstat_memory_total_t, 1)
@@ -239,7 +239,7 @@ func (self *Mem) Get() error {
 	return nil
 }
 
-// Return the current system swap memory
+// Get returns the current system swap memory
 func (self *Swap) Get() error {
 	ps := C.perfstat_pagingspace_t{}
 	id := C.perfstat_id_t{}
@@ -271,7 +271,7 @@ func (self *Swap) Get() error {
 	return nil
 }
 
-// Return information about a CPU
+// Get returns information about a CPU
 func (self *Cpu) Get() error {
 	cpudata := C.perfstat_cpu_total_t{}
 
@@ -287,7 +287,7 @@ func (self *Cpu) Get() error {
 	return nil
 }
 
-// Return the list of CPU used by the system
+// Get returns the list of CPU used by the system
 func (self *CpuList) Get() error {
 	cpudata := C.perfstat_cpu_t{}
 	id := C.perfstat_id_t{}
@@ -321,10 +321,9 @@ func (self *CpuList) Get() error {
 	self.List = list
 
 	return nil
-
 }
 
-// Return the list of all active processes
+// Get returns the list of all active processes
 func (self *ProcList) Get() error {
 	info := C.struct_procsinfo64{}
 	pid := C.pid_t(0)
@@ -350,7 +349,7 @@ func (self *ProcList) Get() error {
 	return nil
 }
 
-// Return information about a process
+// Get returns information about a process
 func (self *ProcState) Get(pid int) error {
 	info := C.struct_procsinfo64{}
 	cpid := C.pid_t(pid)
@@ -387,9 +386,9 @@ func (self *ProcState) Get(pid int) error {
 
 	// Get process username. Fallback to UID if username is not available.
 	uid := strconv.Itoa(int(info.pi_uid))
-	user, err := user.LookupId(uid)
-	if err == nil && user.Username != "" {
-		self.Username = user.Username
+	userID, err := user.LookupId(uid)
+	if err == nil && userID.Username != "" {
+		self.Username = userID.Username
 	} else {
 		self.Username = uid
 	}
@@ -404,7 +403,7 @@ func (self *ProcState) Get(pid int) error {
 	return nil
 }
 
-// Return the current memory usage of a process
+//Get returns the current memory usage of a process
 func (self *ProcMem) Get(pid int) error {
 	info := C.struct_procsinfo64{}
 	cpid := C.pid_t(pid)
@@ -428,7 +427,7 @@ func (self *ProcMem) Get(pid int) error {
 	return nil
 }
 
-// Return a process uptime
+// Get returns a process uptime
 func (self *ProcTime) Get(pid int) error {
 	info := C.struct_procsinfo64{}
 	cpid := C.pid_t(pid)
@@ -449,7 +448,7 @@ func (self *ProcTime) Get(pid int) error {
 	return nil
 }
 
-// Return arguments of a process
+// Get returns arguments of a process
 func (self *ProcArgs) Get(pid int) error {
 	/* If buffer is not large enough, args are truncated */
 	buf := make([]byte, 8192)
@@ -480,7 +479,7 @@ func (self *ProcArgs) Get(pid int) error {
 	return nil
 }
 
-// Return the environment of a process
+// Get returns the environment of a process
 func (self *ProcEnv) Get(pid int) error {
 	if self.Vars == nil {
 		self.Vars = map[string]string{}
@@ -518,7 +517,7 @@ func (self *ProcEnv) Get(pid int) error {
 	return nil
 }
 
-// Return the path of the process executable
+// Get returns the path of the process executable
 func (self *ProcExe) Get(pid int) error {
 	/* If buffer is not large enough, args are truncated */
 	buf := make([]byte, 8192)
@@ -549,14 +548,17 @@ func (self *ProcExe) Get(pid int) error {
 	return nil
 }
 
-func (self *ProcFDUsage) Get(pid int) error {
+// Get returns process filesystem usage. Not implimented on AIX.
+func (*ProcFDUsage) Get(_ int) error {
 	return ErrNotImplemented{runtime.GOOS}
 }
 
-func (self *FDUsage) Get() error {
+// Get returns filesytem usage. Not implimented on AIX.
+func (*FDUsage) Get() error {
 	return ErrNotImplemented{runtime.GOOS}
 }
 
-func (self *HugeTLBPages) Get() error {
+// Get returns huge pages info. Not implimented on AIX.
+func (*HugeTLBPages) Get() error {
 	return ErrNotImplemented{runtime.GOOS}
 }
