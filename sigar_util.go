@@ -24,10 +24,7 @@ func chop(buf []byte) []byte {
 	return buf[0 : len(buf)-1]
 }
 
+// convertBytesToString trims null bytes and returns a string
 func convertBytesToString(arr []byte) string {
-	n := bytes.IndexByte(arr, 0)
-	if n == -1 {
-		return string(arr[:])
-	}
-	return string(arr[:n])
+	return string(bytes.Trim(arr, "\x00"))
 }
