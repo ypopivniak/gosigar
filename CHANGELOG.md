@@ -6,6 +6,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Add AIX support. #133
+
 ### Fixed
 
 - Fixed the `ss` example by replacing the Logrus package with the stdlib `log` package. https://github.com/elastic/gosigar/issues/123 https://github.com/elastic/gosigar/pull/136

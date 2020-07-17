@@ -79,7 +79,7 @@ func TestConcreteFileSystemUsage(t *testing.T) {
 func TestConcreteGetFDUsage(t *testing.T) {
 	concreteSigar := &sigar.ConcreteSigar{}
 	fdUsage, err := concreteSigar.GetFDUsage()
-	skipNotImplemented(t, err, "windows", "darwin")
+	skipNotImplemented(t, err, "windows", "darwin", "aix")
 	if assert.NoError(t, err) {
 		assert.True(t, fdUsage.Open > 0)
 		assert.True(t, fdUsage.Open <= fdUsage.Max)
