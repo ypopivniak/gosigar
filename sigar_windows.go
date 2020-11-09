@@ -136,11 +136,16 @@ func (self *FileSystemList) Get() error {
 		if err != nil {
 			return errors.Wrapf(err, "GetDriveType failed")
 		}
+		volumeType, err := windows.GetVolumeInfo(drive)
+		if err != nil {
+			return errors.Wrapf(err, "GetVolumeInfo failed")
+		}
 
 		self.List = append(self.List, FileSystem{
-			DirName:  drive,
-			DevName:  drive,
-			TypeName: dt.String(),
+			DirName:     drive,
+			DevName:     drive,
+			TypeName:    dt.String(),
+			SysTypeName: volumeType,
 		})
 	}
 	return nil
