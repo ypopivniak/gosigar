@@ -114,18 +114,18 @@ func TestGetDiskFreeSpaceEx(t *testing.T) {
 	}
 }
 
-func TestGetVolumeInfo(t *testing.T) {
+func TestGetFilesystemType(t *testing.T) {
 	drives, err := GetLogicalDriveStrings()
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	for _, drive := range drives {
-		volumeType, err := GetVolumeInfo(drive)
+		volumeType, err := GetFilesystemType(drive)
 		if err != nil {
 			t.Fatal(err)
 		}
-		t.Logf("GetVolumeInfo: %v - %v", drive, volumeType)
+		t.Logf("GetFilesystemType: %v - %v", drive, volumeType)
 	}
 }
 

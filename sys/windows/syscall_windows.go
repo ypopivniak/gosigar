@@ -336,15 +336,15 @@ func GetDriveType(rootPathName string) (DriveType, error) {
 	return dt, nil
 }
 
-// GetVolumeInfo returns volume informatiom at the given root path.
+// GetFilesystemType returns file system type information at the given root path.
 // https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getvolumeinformationw
-func GetVolumeInfo(rootPathName string) (string, error) {
+func GetFilesystemType(rootPathName string) (string, error) {
 	rootPathNamePtr, err := syscall.UTF16PtrFromString(rootPathName)
 	if err != nil {
 		return "", errors.Wrapf(err, "UTF16PtrFromString failed for rootPathName=%v", rootPathName)
 	}
 
-	buffer := make([]uint16, MAX_PATH)
+	buffer := make([]uint16, MAX_PATH+1)
 	success, err := _GetVolumeInformation(rootPathNamePtr, nil, 0, nil, nil, nil, &buffer[0], MAX_PATH)
 	if !success {
 		return "", errors.Wrap(err, "GetVolumeInformationW failed")
