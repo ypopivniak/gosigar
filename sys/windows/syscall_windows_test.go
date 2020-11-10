@@ -114,6 +114,21 @@ func TestGetDiskFreeSpaceEx(t *testing.T) {
 	}
 }
 
+func TestGetFilesystemType(t *testing.T) {
+	drives, err := GetLogicalDriveStrings()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, drive := range drives {
+		volumeType, err := GetFilesystemType(drive)
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Logf("GetFilesystemType: %v - %v", drive, volumeType)
+	}
+}
+
 func TestGetWindowsVersion(t *testing.T) {
 	ver := GetWindowsVersion()
 	assert.True(t, ver.Major >= 5)

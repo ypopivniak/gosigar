@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add AIX support. #133
 - Add `Cached` data to Memory #145
+- Add `SysTypeName` support on Windows #146
 
 ### Fixed
 
