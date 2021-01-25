@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Add ARM support [#152]https://github.com/elastic/gosigar/pull/152
+
 ### Added
 
 ### Fixed
