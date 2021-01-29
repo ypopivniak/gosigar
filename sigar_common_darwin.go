@@ -186,7 +186,6 @@ func (self *FileSystemList) Get() error {
 
 	for i := 0; i < num; i++ {
 		fs := FileSystem{}
-		fmt.Printf("Got Raw buffer: %#v\n", buf[i].Fstypename)
 		fs.DirName = byteListToString(buf[i].Mntonname[:])
 		fs.DevName = byteListToString(buf[i].Mntfromname[:])
 		fs.SysTypeName = byteListToString(buf[i].Fstypename[:])
