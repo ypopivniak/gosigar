@@ -1,0 +1,102 @@
+#!/usr/bin/env groovy
+
+@Library('apm@current') _
+
+pipeline {
+  agent { label 'ubuntu-20 && immutable' }
+  environment {
+    BASE_DIR="src/github.com/elastic/gosigar"
+    PIPELINE_LOG_LEVEL='INFO'
+  }
+  options {
+    timeout(time: 1, unit: 'HOURS')
+    buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10', daysToKeepStr: '30'))
+    timestamps()
+    ansiColor('xterm')
+    disableResume()
+    durabilityHint('PERFORMANCE_OPTIMIZED')
+    rateLimitBuilds(throttle: [count: 60, durationName: 'hour', userBoost: true])
+    quietPeriod(10)
+  }
+  triggers {
+    issueCommentTrigger('(?i)(.*(?:jenkins\\W+)?run\\W+(?:the\\W+)?tests(?:\\W+please)?|/test).*')
+  }
+  parameters {
+    booleanParam(name: 'run_all_stages', defaultValue: false, description: 'Force to run all stages.')
+  }
+  stages {
+    stage('Checkout') {
+      steps {
+        deleteDir()
+        gitCheckout(basedir: "${BASE_DIR}")
+        stash allowEmpty: true, name: 'source', useDefaultExcludes: false
+      }
+    }
+    stage('Lint'){
+      steps {
+        withGoEnv(){
+          dir("${BASE_DIR}"){
+            sh(label: 'lint', script: '''
+              go mod tidy && git diff --exit-code
+              gofmt -l . | read && echo "Code differs from gofmt's style. Run 'gofmt -w .'" 1>&2 && exit 1 || true
+            ''')
+            sh(label: 'Go vet', script: 'go vet')
+          }
+        }
+      }
+    }
+    stage('Build and test'){
+      matrix {
+        agent {label "${PLATFORM}"}
+        axes {
+          axis {
+            name 'PLATFORM'
+            values 'macOS', 'ubuntu-20 && immutable'
+          }
+          axis {
+            name 'GO_VERSION'
+            values '1.11', '1.15'
+          }
+        }
+        stages {
+          stage('build'){
+            steps {
+              deleteDir()
+              unstash 'source'
+              withGoEnv(){
+                dir("${BASE_DIR}"){
+                  sh(label: 'Go build', script: 'go build')
+                }
+              }
+            }
+          }
+          stage('test'){
+            steps {
+              dir("${BASE_DIR}"){
+                goTestJUnit(options: '-v ./...', output: 'build/junit-report.xml')
+                sh(label: 'Build Examples', script: '''
+                  for i in $(ls examples)
+                  do 
+                    go build -o examples/$i/$i ./examples/$i
+                    ./examples/$i/$i
+                  done
+                ''')
+              }
+            }
+            post{
+              cleanup{
+                junit(testResults: "${BASE_DIR}/junit-report.xml", allowEmptyResults: true)
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  post {
+    cleanup {
+      notifyBuildResult(prComment: true)
+    }
+  }
+}
+
