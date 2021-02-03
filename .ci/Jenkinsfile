@@ -73,7 +73,7 @@ pipeline {
           stage('test'){
             steps {
               dir("${BASE_DIR}"){
-                goTestJUnit(options: '-v ./...', output: 'build/junit-report.xml')
+                goTestJUnit(options: '-v ./...', output: 'junit-report.xml')
                 buildExamples()
               }
             }
