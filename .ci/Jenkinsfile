@@ -70,9 +70,11 @@ pipeline {
           }
           stage('test'){
             steps {
-              dir("${BASE_DIR}"){
-                goTestJUnit(options: '-v ./...', output: 'junit-report.xml')
-                buildExamples()
+              withGoEnv(){
+                dir("${BASE_DIR}"){
+                  goTestJUnit(options: '-v ./...', output: 'junit-report.xml')
+                  buildExamples()
+                }
               }
             }
             post{
