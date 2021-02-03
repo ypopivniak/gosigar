@@ -51,7 +51,7 @@ pipeline {
         axes {
           axis {
             name 'PLATFORM'
-            values 'macOS', 'ubuntu-20 && immutable'
+            values 'macOS', 'ubuntu-20 && immutable', 'windows-2012-r2 && immutable'
           }
           axis {
             name 'GO_VERSION'
@@ -65,7 +65,7 @@ pipeline {
               unstash 'source'
               withGoEnv(){
                 dir("${BASE_DIR}"){
-                  sh(label: 'Go build', script: 'go build')
+                  cmd(label: 'Go build', script: 'go build')
                 }
               }
             }
@@ -74,13 +74,7 @@ pipeline {
             steps {
               dir("${BASE_DIR}"){
                 goTestJUnit(options: '-v ./...', output: 'build/junit-report.xml')
-                sh(label: 'Build Examples', script: '''
-                  for i in $(ls examples)
-                  do 
-                    go build -o examples/$i/$i ./examples/$i
-                    ./examples/$i/$i
-                  done
-                ''')
+                buildExamples()
               }
             }
             post{
@@ -100,3 +94,24 @@ pipeline {
   }
 }
 
+def getExamplesDirs(){
+  return [
+    "examples/df",
+    "examples/free",
+    "examples/ps",
+    "examples/uptime"
+  ]
+}
+
+def  buildExamples(){
+  getExamplesDirs().each { exampleDir ->
+      cmd(label: "Build Example ${exampleDir}", script: "go build -o ${exampleDir}/out.exe ./${exampleDir}")
+      dir("${exampleDir}"){
+        def prefix = ''
+        if(isUnix()){
+          prefix = './'
+        }
+        cmd(label: "Running Example ${exampleDir}", script: "${prefix}out.exe")
+      }
+  }
+}
