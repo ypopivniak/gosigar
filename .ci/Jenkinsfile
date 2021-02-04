@@ -51,10 +51,6 @@ pipeline {
             name 'PLATFORM'
             values 'macosx', 'ubuntu-20 && immutable', 'windows-2012-r2 && windows-immutable'
           }
-          axis {
-            name 'GO_VERSION'
-            values '1.11', '1.15'
-          }
         }
         stages {
           stage('build'){
