@@ -1,6 +1,6 @@
 ---
 - job:
-    name: Beats/gosigar
+    name: Library/gosigar
     display-name: Go sigar
     description: Jenkins pipeline for Go sigar is a golang implementation of the sigar API.
     view: Beats
