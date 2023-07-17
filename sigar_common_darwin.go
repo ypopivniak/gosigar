@@ -3,6 +3,7 @@
 package gosigar
 
 /*
+#cgo CFLAGS: -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include
 #include <stdlib.h>
 #include <sys/sysctl.h>
 #include <sys/mount.h>
